@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AceTracker — Mejora tu tenis con datos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark:  #1B5E20;
+    --green-mid:   #2E7D32;
+    --green-light: #4CAF50;
+    --green-pale:  #E8F5E9;
+    --green-neon:  #76FF03;
+    --white:       #FAFDF9;
+    --off:         #F0F5F0;
+    --text:        #0D1F0E;
+    --muted:       #5A7A5C;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(250,253,249,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(46,125,50,0.12);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 2px;
+    color: var(--green-dark);
+  }
+  .nav-cta {
+    background: var(--green-mid); color: #fff;
+    border: none; border-radius: 50px;
+    padding: 10px 24px; font-size: 14px; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background .2s, transform .15s;
+  }
+  .nav-cta:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 120px 40px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(76,175,80,0.13) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(27,94,32,0.08) 0%, transparent 60%);
+  }
+  /* Decorative court lines */
+  .court-lines {
+    position: absolute; right: -40px; top: 50%; transform: translateY(-50%);
+    width: 520px; height: 380px; z-index: 0; opacity: 0.07;
+  }
+  .court-lines svg { width: 100%; height: 100%; }
+
+  .hero-content { position: relative; z-index: 1; max-width: 680px; }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-pale); border: 1px solid rgba(76,175,80,0.3);
+    border-radius: 50px; padding: 6px 14px;
+    font-size: 12px; font-weight: 600; color: var(--green-mid);
+    margin-bottom: 24px;
+    animation: fadeUp .6s ease both;
+  }
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 10vw, 128px);
+    line-height: .92;
+    color: var(--green-dark);
+    animation: fadeUp .6s .1s ease both;
+  }
+  .hero h1 span { color: var(--green-light); }
+
+  .hero-sub {
+    margin-top: 24px; font-size: 18px; line-height: 1.6;
+    color: var(--muted); font-weight: 300; max-width: 500px;
+    animation: fadeUp .6s .2s ease both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap;
+    animation: fadeUp .6s .3s ease both;
+  }
+  .btn-primary {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--green-mid); color: #fff;
+    border: none; border-radius: 50px;
+    padding: 15px 32px; font-size: 15px; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 20px rgba(46,125,50,0.3);
+  }
+  .btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(46,125,50,0.4); }
+  .btn-secondary {
+    display: flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--green-mid);
+    border: 1.5px solid var(--green-mid); border-radius: 50px;
+    padding: 15px 32px; font-size: 15px; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+  }
+  .btn-secondary:hover { background: var(--green-pale); transform: translateY(-2px); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex; gap: 0;
+    background: var(--green-dark);
+    padding: 28px 40px;
+    animation: fadeUp .6s .4s ease both;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    flex: 1; min-width: 140px;
+    text-align: center; padding: 0 20px;
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px; color: var(--green-neon); letter-spacing: 1px;
+  }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 500; margin-top: 2px; }
+
+  /* ── FEATURES ── */
+  .section { padding: 100px 40px; }
+  .section-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    color: var(--green-light); text-transform: uppercase; margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1; color: var(--green-dark); margin-bottom: 60px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .feature-card {
+    background: #fff;
+    border: 1px solid rgba(46,125,50,0.12);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative; overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--green-light), var(--green-neon));
+    opacity: 0; transition: opacity .2s;
+  }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(46,125,50,0.12); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon {
+    font-size: 36px; margin-bottom: 16px; display: block;
+  }
+  .feature-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+
+  /* ── SCREENS ── */
+  .screens-section {
+    background: var(--green-dark);
+    padding: 100px 40px;
+    position: relative; overflow: hidden;
+  }
+  .screens-section .section-tag { color: var(--green-neon); }
+  .screens-section .section-title { color: #fff; margin-bottom: 16px; }
+  .screens-sub { font-size: 16px; color: rgba(255,255,255,0.6); margin-bottom: 60px; font-weight: 300; }
+
+  .screens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px; max-width: 900px; margin: 0 auto;
+  }
+  .screen-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 28px 20px;
+    text-align: center;
+    transition: background .2s, transform .2s;
+  }
+  .screen-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-4px); }
+  .screen-icon { font-size: 32px; margin-bottom: 12px; }
+  .screen-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .screen-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  /* ── TECH ── */
+  .tech-section { padding: 100px 40px; background: var(--off); }
+  .tech-grid {
+    display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px;
+  }
+  .tech-pill {
+    background: #fff; border: 1px solid rgba(46,125,50,0.2);
+    border-radius: 50px; padding: 10px 20px;
+    font-size: 13px; font-weight: 500; color: var(--green-mid);
+    display: flex; align-items: center; gap: 8px;
+    transition: all .2s;
+  }
+  .tech-pill:hover { background: var(--green-pale); border-color: var(--green-light); }
+  .tech-pill-icon { font-size: 16px; }
+
+  /* ── DOWNLOAD ── */
+  .download-section {
+    padding: 120px 40px; text-align: center;
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+    position: relative; overflow: hidden;
+  }
+  .download-section::before {
+    content: 'ACETRACKER';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 220px; letter-spacing: -5px;
+    color: rgba(255,255,255,0.04);
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    white-space: nowrap; pointer-events: none;
+  }
+  .download-section .section-title { color: #fff; margin-bottom: 16px; }
+  .download-section .section-tag { color: var(--green-neon); }
+  .download-desc { font-size: 17px; color: rgba(255,255,255,0.7); margin-bottom: 48px; font-weight: 300; }
+  .download-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .btn-dl {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; color: var(--green-dark);
+    border: none; border-radius: 50px;
+    padding: 16px 36px; font-size: 15px; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  }
+  .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(0,0,0,0.3); }
+  .btn-gh {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.12); color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.3); border-radius: 50px;
+    padding: 16px 36px; font-size: 15px; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+  }
+  .btn-gh:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--text); color: rgba(255,255,255,0.4);
+    text-align: center; padding: 28px 40px;
+    font-size: 13px; font-weight: 300;
+  }
+  footer strong { color: rgba(255,255,255,0.8); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    nav { padding: 16px 20px; }
+    .hero { padding: 100px 20px 60px; }
+    .section { padding: 70px 20px; }
+    .stats-bar { padding: 24px 20px; }
+    .screens-section, .tech-section, .download-section { padding: 70px 20px; }
+    .download-section::before { font-size: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AceTracker</div>
+  <a href="#download" class="nav-cta">Descargar APK</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="court-lines">
+    <svg viewBox="0 0 520 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="20" width="480" height="340" stroke="#2E7D32" stroke-width="3"/>
+      <line x1="260" y1="20" x2="260" y2="360" stroke="#2E7D32" stroke-width="2"/>
+      <rect x="100" y="20" width="320" height="340" stroke="#2E7D32" stroke-width="2"/>
+      <line x1="100" y1="190" x2="420" y2="190" stroke="#2E7D32" stroke-width="2"/>
+      <line x1="260" y1="190" x2="260" y2="360" stroke="#2E7D32" stroke-width="1.5"/>
+      <circle cx="260" cy="190" r="20" stroke="#2E7D32" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      App Android nativa · Kotlin + Jetpack Compose
+    </div>
+    <h1>ACE<br><span>TRACKER</span></h1>
+    <p class="hero-sub">
+      Registra tus sesiones de tenis en segundos. Visualiza tu progreso.
+      Supera tus objetivos. Todo desde tu móvil.
+    </p>
+    <div class="hero-actions">
+      <a href="#download" class="btn-primary">
+        📱 Descargar APK
+      </a>
+      <a href="#features" class="btn-secondary">
+        Ver funcionalidades ↓
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">≤3</div>
+    <div class="stat-label">Pasos para registrar</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">4</div>
+    <div class="stat-label">Pantallas principales</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Tipos de entrenamiento</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Local · Sin cuenta</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-tag">Funcionalidades</div>
+  <div class="section-title">Todo lo que<br>necesitas</div>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <span class="feature-icon">📋</span>
+      <div class="feature-title">Registro rápido</div>
+      <div class="feature-desc">Elige el tipo de entrenamiento, introduce duración, series completadas y precisión. Menos de 60 segundos.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📈</span>
+      <div class="feature-title">Gráfico de evolución</div>
+      <div class="feature-desc">Visualiza tu progreso con curvas suavizadas de precisión y series. Ve si estás mejorando de un vistazo.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🎯</span>
+      <div class="feature-title">Objetivos personales</div>
+      <div class="feature-desc">Define tus metas con sliders. La app te muestra barras de progreso y alertas cuando te quedas por debajo.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔥</span>
+      <div class="feature-title">Racha de días</div>
+      <div class="feature-desc">Lleva el seguimiento de cuántos días consecutivos entrenas. El mejor motivador para no romper la cadena.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">⚠️</span>
+      <div class="feature-title">Alertas de sobreentrenamiento</div>
+      <div class="feature-desc">Si tus sesiones superan los 120 minutos, la app te avisa para que descanses y evites lesiones.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🎾</span>
+      <div class="feature-title">Vídeo del día</div>
+      <div class="feature-desc">Cada vez que abres la app aparece el último vídeo del canal Saque y Red para inspirarte antes de entrenar.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section class="screens-section">
+  <div class="section-tag">Pantallas</div>
+  <div class="section-title">Flujo principal</div>
+  <p class="screens-sub">Cuatro pantallas. Sin fricciones. Sin configuración previa.</p>
+
+  <div class="screens-grid">
+    <div class="screen-card reveal">
+      <div class="screen-icon">🏠</div>
+      <div class="screen-name">Inicio</div>
+      <div class="screen-desc">Historial de sesiones con badge de color según rendimiento</div>
+    </div>
+    <div class="screen-card reveal">
+      <div class="screen-icon">➕</div>
+      <div class="screen-name">Registrar</div>
+      <div class="screen-desc">Formulario con dropdown, validación y notas opcionales</div>
+    </div>
+    <div class="screen-card reveal">
+      <div class="screen-icon">📊</div>
+      <div class="screen-name">Estadísticas</div>
+      <div class="screen-desc">Gráfico, promedios, comparación con objetivos y alertas</div>
+    </div>
+    <div class="screen-card reveal">
+      <div class="screen-icon">🎯</div>
+      <div class="screen-name">Objetivos</div>
+      <div class="screen-desc">Sliders para definir tus metas de precisión y series</div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH -->
+<section class="tech-section reveal">
+  <div class="section-tag">Stack técnico</div>
+  <div class="section-title">Construido con<br>tecnología moderna</div>
+  <div class="tech-grid">
+    <div class="tech-pill"><span class="tech-pill-icon">🟣</span> Kotlin 1.9</div>
+    <div class="tech-pill"><span class="tech-pill-icon">🎨</span> Jetpack Compose</div>
+    <div class="tech-pill"><span class="tech-pill-icon">🏗️</span> MVVM</div>
+    <div class="tech-pill"><span class="tech-pill-icon">🗄️</span> Room (SQLite)</div>
+    <div class="tech-pill"><span class="tech-pill-icon">🧭</span> Navigation Compose</div>
+    <div class="tech-pill"><span class="tech-pill-icon">🖼️</span> Coil</div>
+    <div class="tech-pill"><span class="tech-pill-icon">📐</span> Material Design 3</div>
+    <div class="tech-pill"><span class="tech-pill-icon">⚙️</span> KSP</div>
+    <div class="tech-pill"><span class="tech-pill-icon">📱</span> Android 7.0+</div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section class="download-section" id="download">
+  <div class="section-tag">Descarga</div>
+  <div class="section-title">Pruébala ahora</div>
+  <p class="download-desc">
+    Descarga el APK directamente e instálalo en cualquier Android 7.0 o superior.<br>
+    Sin cuenta. Sin datos en la nube. Todo local.
+  </p>
+  <div class="download-btns">
+    <a href="app-debug.apk" class="btn-dl" download>
+      📥 Descargar APK
+    </a>
+    <a href="https://github.com/TU_USUARIO/AceTracker" class="btn-gh" target="_blank">
+      ⌥ Ver en GitHub
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <strong>AceTracker</strong> · Proyecto TFG 2024–2025 ·
+  Desarrollado con Kotlin y Jetpack Compose
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
